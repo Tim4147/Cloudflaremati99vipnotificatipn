@@ -1,1 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mati99 Push Console</title>
+<style>
+  :root { --bg:#0b0b0f; --card:#141420; --txt:#f5f5f7; --muted:#a5a7b3; --pri:#ffb300; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,Segoe UI,Roboto,Inter,Arial}
+  .wrap{max-width:720px;margin:0 auto;padding:16px}
+  .card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+  h1{font-size:20px;margin:0 0 12px}
+  label{display:block;margin:12px 0 6px;color:var(--muted);font-size:13px}
+  select,input,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a3a;background:#0f0f18;color:var(--txt);font-size:16px}
+  .row{display:flex;gap:10px}.row>*{flex:1}
+  .btn{width:100%;padding:14px;border:0;border-radius:12px;background:var(--pri);color:#241a00;font-weight:700;font-size:16px;margin-top:14px;cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+  .note{font-size:12px;color:var(--muted);margin-top:8px}.ok{color:#9ef59e}.err{color:#ff7b7b}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>🔔 Mati99 Push Console</h1>
+
+    <label>Passcode</label>
+    <input id="passcode" type="password" placeholder="Team passcode" />
+
+    <label>Slot</label>
+    <select id="slot">
+      <option value="morning">Morning (Sridevi/Milan Morning)</option>
+      <option value="afternoon">Afternoon (Time Bazar/Madhur Day)</option>
+      <option value="evening">Evening (Rajdhani Day/Kalyan Day)</option>
+      <option value="night">Night (Milan Night/Kalyan Night/Main Bazar)</option>
+    </select>
+
+    <div class="row">
+      <div>
+        <label>Platform</label>
+        <select id="platform">
+          <option value="android">Android only</option>
+          <option value="all">All platforms</option>
+        </select>
+      </div>
+      <div>
+        <label>Randomize copy</label>
+        <select id="randomize">
+          <option value="true">Yes (classic/SRK)</option>
+          <option value="false">No (classic)</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Title (optional)</label>
+    <input id="title" placeholder="Leave blank to use template" />
+
+    <label>Message (optional)</label>
+    <textarea id="message" rows="3" placeholder="Leave blank to use template"></textarea>
+
+    <label>Landing URL</label>
+    <input id="url" value="https://mati99.vip/?utm_source=onesignal&utm_medium=push&utm_campaign=daily_console" />
+
+    <div style="margin-top:10px">
+      <input type="checkbox" id="banner" checked />
+      <label for="banner">Include SRK banner</label>
+    </div>
+
+    <button class="btn" id="send">🚀 Send Now</button>
+    <div class="note" id="status"></div>
+  </div>
+</div>
+
+<script>
+const WORKER_URL = "https://nameless-cloud-712a.mati99-vip.workers.dev/"; // ✅ Updated
+
+async function send() {
+  const status = document.getElementById('status');
+  status.textContent = 'Sending...';
+
+  const payload = {
+    slot: document.getElementById('slot').value,
+    platform: document.getElementById('platform').value,
+    randomize: document.getElementById('randomize').value === 'true',
+    title: document.getElementById('title').value,
+    message: document.getElementById('message').value,
+    url: document.getElementById('url').value,
+    useSRKBanner: document.getElementById('banner').checked
+  };
+
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-passcode': document.getElementById('passcode').value.trim()
+      },
+      body: JSON.stringify(payload)
+    });
+    const text = await res.text();
+    if (res.ok) {
+      status.textContent = '✅ Sent: ' + text;
+      status.className = 'note ok';
+    } else {
+      status.textContent = '❌ Error ' + res.status + ': ' + text;
+      status.className = 'note err';
+    }
+  } catch (e) {
+    status.textContent = '❌ Network error: ' + e.message;
+    status.className = 'note err';
+  }
+}
+document.getElementById('send').addEventListener('click', send);
+</script>
+</body>
+</html>
 
